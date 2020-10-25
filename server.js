@@ -37,7 +37,7 @@ server.get('/api/getCollection/:collectionID', async (req, res)=>{
     res.status(200).json(response.rows[0]).end();
 });
 
-server.post('/api/createCard/', async (req, res)=>{
+server.post('/api/createCard', async (req, res)=>{
     
     let id = req.body.collectionID;
     let front = req.body.front;
@@ -57,7 +57,7 @@ server.get('/api/getUserCollections/:username',async (req, res)=>{
 
 });
 
-server.post('/api/createCollection/', async (req, res, next)=>{
+server.post('/api/createCollection', async (req, res, next)=>{
 
     let user = req.body.userName;
     let collection = req.body.collectionName;
@@ -68,7 +68,7 @@ server.post('/api/createCollection/', async (req, res, next)=>{
 
 });
 
-server.post('/api/login/', upload.none(), async (req, res, next)=>{
+server.post('/api/login', upload.none(), async (req, res, next)=>{
 
     let userName = req.body.username;
     let password = req.body.password;
@@ -88,7 +88,7 @@ server.post('/api/login/', upload.none(), async (req, res, next)=>{
 
 });
 
-server.post('/api/createUser/', upload.none(), async (req, res, next)=> {
+server.post('/api/createUser', upload.none(), async (req, res, next)=> {
 
     let userName = req.body.username;
     let password = req.body.password;
