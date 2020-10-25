@@ -9,7 +9,8 @@ server.use(express.static('public'));
 
 const upload = multer({ dest: 'uploads/' }); //MULTER
 
-const credentials = require('./NEI').credentials || process.env.DATABASE_URL;
+//const credentials = require('./NEI').credentials || process.env.DATABASE_URL;
+const credentials = process.env.DATABASE_URL;
 const db = new storage(credentials);
 
 /* ************************************** */
