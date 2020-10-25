@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <header>Logout</header>
+    <h1>Du er i samlingen <span id="collectionName"></span></h1>
+    <h2 id="emptyCollection"></h2>
+    
+    <div id="wrap1"></div>
+    
+
+    <h1>Kjør test</h1>
+    <h3>Kort nr. <span id="cardNo"></span></h3>
+    <div id="flashcard"></div>
+    <br><br>
+    <button id="checkCard">Sjekk kort</button>
+    <button id="newCard">Nytt kort</button>
+    
+
+    <div id="wrap2"></div>
+    
+
+
+</body>
+
+<script>
+    let logout = document.querySelector('header');
+    logout.addEventListener('click',()=>{
+        localStorage.clear();
+        location.href= 'index.html';
+    });
+
+    let wrap1 = document.getElementById('wrap1');
+    let wrap2 = document.getElementById('wrap2');
+    let emptyCollection = document.getElementById('emptyCollection');
+    
+    let collectionName = document.getElementById('collectionName');
+    let cardNo = document.getElementById('cardNo');
+    let flashcard = document.getElementById('flashcard');
+    let checkCard = document.getElementById('checkCard');
+    let newCard = document.getElementById('newCard');
+
+    let forside = null;
+    let bakside = null;
+    let createCard = null;
+    let editCollection = null;
+    
+
+    //Check if a user is logged in, i.e. if a user exists in localStorage
+    let user = localStorage.getItem("user");
+    if(user){
+
+        let wrap1HTML = `
+        <h1>Lag nye kort</h1>
+        <label for="forside">Forside: </label>
+        <input id="forside" type="text" />
+        <br><br>
+        <label for="bakside">Bakside: </label>
+        <input id="bakside" type="text" />
+        <br><br>
+        <button id="createCard">Lag kort</button>
+        <br><br>
+
+        <hr>`;
+
+        let wrap2HTML = `
+        <br><br>
+        <hr>
+        <h2>Rediger samling</h2>
+        <button id="editCollection">Rediger samling</button>
+        `;
+
+        wrap1.innerHTML = wrap1HTML;
+        wrap2.innerHTML = wrap2HTML;
+
+        forside = document.getElementById('forside'); //*
+        bakside = document.getElementById('bakside'); //*
+        createCard = document.getElementById('createCard'); //*
+        editCollection = document.getElementById('editCollection');//*
+
+        editCollection.addEventListener('click', ()=>{
+                localStorage.setItem('collectionID', getID());
+                location.href = 'edit_collection.html';
+            });
+
+            
+    } else {
+        console.log('Not logged in');
+    }
+
+    let cards = [];
+    let currentCard;
+
+    newCard.addEventListener('click', ()=>{
+                // 1. Velg random kort fra cards-arrayen
+                // 2. Vis forsiden til kortet
+                let cardIndex = Math.floor(Math.random()*(cards.length))
+                currentCard = cards[cardIndex];
+                cardNo.innerText = cardIndex + 1;
+                flashcard.innerText = currentCard.front;
+                
+            });
+
+    checkCard.addEventListener('click', ()=>{
+        flashcard.innerText = currentCard.back;
+    });
+
+    getCards();
+
+
+    //On load - get cards from the database
+    async function getCards(){
+        
+        const url = `/api/getCollection/${getID()}`;
+
+        let response = await fetch(url);
+        let data = await response.json();
+        
+        if(data.cards === " "){
+            emptyCollection.innerHTML = "Denne samlingen er tom!"
+        } else {
+            cards = JSON.parse(data.cards);   
+        }
+        collectionName.innerText = data.collection;
+    }
+
+    
+
+    createCard.addEventListener('click', async ()=>{
+        let collectionID = getID();
+        let front = forside.value;
+        let back = bakside.value;
+
+        let body = {
+            collectionID: collectionID,
+            front: front,
+            back: back
+        }
+
+        let config = {
+            method: 'post',
+            body: JSON.stringify(body),
+            headers: {
+                'content-type': 'application/json'
+            }
+        }
+
+        const url = '/api/createCard/';
+
+        let response = await fetch(url, config);
+        
+        if(response.status === 200){
+            getCards();
+        } else {
+            console.log(response.status);
+        }
+        
+    });
+
+
+    
+    
+    function getID(){
+        let currentURL = new URL(window.location.href);
+        let params = new URLSearchParams(currentURL.search);
+        let id = params.toString().slice(3);    
+        return id;
+    }
+ 
+</script>
+</html>

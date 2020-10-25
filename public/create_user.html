@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create User</title>
+</head>
+<body>
+    
+    <h1>Opprett ny bruker</h1>
+    <form id = "createUserForm">
+        <label for="userName">Brukernavn: </label>
+        <input name="username" id="userName" type="text" />
+        <br>
+        <br>
+        <label for="password">Passord: </label>
+        <input name="password" id="password" type="password" />
+        <br>
+        <br>
+        <input id="submit" type="submit" value="Opprett bruker"/>
+    </form>
+
+</body>
+
+    <script>
+
+        let createUserForm = document.getElementById('createUserForm');
+        let submit = document.getElementById('submit');
+
+        submit.addEventListener('click', async (e)=>{
+            e.preventDefault();
+            
+            let formData = new FormData(createUserForm);
+            const url = '/api/createUser/';
+
+            const config = {
+                body: formData,
+                method: 'post'
+            }
+
+            let response = await fetch(url, config);
+            
+            if(response.status === 200){
+                //Send videre til login
+                location.href = "login.html";
+            }
+            
+        });
+        
+    </script>
+
+</html>

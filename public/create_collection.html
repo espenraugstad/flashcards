@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Collection</title>
+</head>
+<body>
+    <header>Logout</header>
+
+    <h1>Opprett ny samling</h1>
+
+    <label for="collectionName">Navn på samling: </label>
+    <input id="collectionName" type="text" />
+    <br><br>
+    <button id="createCollection">Opprett samling</button>
+    <br><br>
+    <hr>
+    <h1>Mine samlinger</h1>
+    <div id="myCollections">
+
+    </div>
+
+    
+</body>
+<script>
+
+    let logout = document.querySelector('header');
+    logout.addEventListener('click',()=>{
+        localStorage.clear();
+        location.href= 'index.html';
+    });
+    
+    let collectionName = document.getElementById('collectionName');
+    let createCollection = document.getElementById('createCollection');
+
+    let myCollections = document.getElementById('myCollections');
+
+    //Hvordan hente ut søkestreng fra URL:
+    let currentURL = new URL(window.location.href);
+    let params = new URLSearchParams(currentURL.search);
+    
+    console.log(params.toString());
+    /* **************************************** */
+
+
+    async function getMyCollections(){
+        myCollections.innerHTML = '';
+        let username = localStorage.getItem("user");
+        const url = `/api/getUserCollections/${username}`;
+
+        let response = await fetch(url);
+        let data = await response.json();
+        console.log(data);
+
+        for(let element of data){
+            let id = element.id;
+            let name = element.collection;
+
+            let collectionDiv = document.createElement('div');
+            let html = `
+            <h2>${name}</h2>
+            <h3>Id: ${id}</h3>
+            <hr>`;
+            collectionDiv.innerHTML = html;
+            myCollections.appendChild(collectionDiv);
+
+            collectionDiv.addEventListener('click', ()=>{
+                location.href = `collection.html?id=${id}`;
+            });
+
+        }
+
+    }
+
+    getMyCollections();
+
+    createCollection.addEventListener('click', async ()=>{
+
+        let body = {
+            userName: localStorage.getItem("user"),
+            collectionName: collectionName.value
+        };
+
+        const config = {
+            method: 'post',
+            body: JSON.stringify(body),
+            headers: {
+                'content-type': 'application/json'
+            }
+        }
+
+        const url = '/api/createCollection/';
+
+        let response = await fetch(url, config);
+        let data = await response.json();
+        console.log(data);
+        localStorage.setItem("collectionID", data.collectionID);
+
+        getMyCollections();
+
+    });
+
+
+</script>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <header>Logout</header>
+    <h1>Du redigerer samling <span id="collectionName"></span></h1>
+    <h3>Du har valgt å slette følgende kort:</h3>
+    <div id="selectedCard">-</div><br>
+    <button id="deleteCard">Slett valgt kort</button>
+    <h3>Velg et kort: </h3>
+    <div id="container"></div>
+    
+</body>
+
+<script>
+    let logout = document.querySelector('header');
+    logout.addEventListener('click',()=>{
+        localStorage.clear();
+        location.href= 'index.html';
+    });
+    
+    let collectionName = document.getElementById('collectionName');
+    let container = document.getElementById('container');
+    let selectedCard = document.getElementById('selectedCard');
+    let deleteCard = document.getElementById('deleteCard');
+
+    let id = localStorage.getItem('collectionID');
+    let cards = [];
+    let cardToDelete = {};
+
+    getCards();
+
+    deleteCard.addEventListener('click', async ()=>{
+
+        let body = {
+            id: id,
+            cardToDelete
+        }
+
+        let config = {
+            method: 'post',
+            body: JSON.stringify(body),
+            headers: {
+                'content-type': 'application/json'
+            }
+        }
+
+        const url = '/api/deleteCard/';
+
+        let response = await fetch(url, config);
+        if(response.status === 200){
+            getCards();
+        }
+
+    });
+
+    async function getCards(){
+        container.innerHTML = "";
+        selectedCard.innerHTML = "-";
+        const url = `/api/getCollection/${id}`;
+        let response = await fetch(url);
+        let data = await response.json();
+        cards = JSON.parse(data.cards);
+        collectionName.innerText = data.collection;
+
+        //Print out all cards in separate divs with a delete button for each card
+        for(let card of cards){
+            let cardDiv = document.createElement('div');
+            let cardDivHTML = `
+            Forside: ${card.front}<br>
+            Bakside: ${card.back}
+            <hr>
+            `;
+            cardDiv.innerHTML = cardDivHTML;
+            container.appendChild(cardDiv);
+            cardDiv.addEventListener('click', (e)=>{
+                cardToDelete = parseCard(e.currentTarget.innerText);
+                selectedCard.innerHTML = `
+                Forside: ${cardToDelete.front}<br>
+                Bakside: ${cardToDelete.back}
+                `;
+            });
+        }
+    }
+
+    function parseCard(cardText){
+        let front = cardText.split('\n')[0].split(':')[1].trim();
+        let back = cardText.split('\n')[1].split(':')[1].trim();
+    
+        return {
+            front: front,
+            back: back
+        }
+    }
+</script>
+</html>

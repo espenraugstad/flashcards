@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logg inn</title>
+</head>
+<body>
+    <h1>Logg inn</h1>
+    <form id = "loginForm">
+        <label for="userName">Brukernavn: </label>
+        <input name="username" id="userName" type="text" />
+        <br>
+        <br>
+        <label for="password">Passord: </label>
+        <input name="password" id="password" type="password" />
+        <br>
+        <br>
+        <input id="submit" type="submit" value="Logg inn"/>
+    </form>
+    
+</body>
+
+<script>
+    let loginForm = document.getElementById('loginForm');
+    let submit = document.getElementById('submit');
+
+    submit.addEventListener('click', async (e)=>{
+        e.preventDefault();
+        
+        let formData = new FormData(loginForm);
+        const url = '/api/login/';
+
+        const config = {
+            body: formData,
+            method: 'post'
+        }
+
+        let response = await fetch(url, config);
+        let data = await response.json();
+
+        console.log(data);
+
+        if(data.msg === "OK"){
+            //Login suksess
+            localStorage.clear();
+            localStorage.setItem("user", data.username);
+            location.href = 'create_collection.html';
+        }
+        
+
+
+    });
+</script>
+
+</html>
